@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Chat App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f1fa;
+    }
+    header {
+      background: #7046a5;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .chat {
+      padding: 15px;
+    }
+    .message {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      margin: 12px 0;
+      max-width: 75%;
+    }
+    .mine {
+      background: #d9fdd3;
+      margin-left: auto;
+    }
+    .input-area {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      padding: 10px;
+      background: white;
+      gap: 8px;
+    }
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+    }
+    button {
+      background: #7046a5;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>My Chat App 💬</h2>
+    <p>Welcome to my chat!</p>
+  </header>
+
+  <div class="chat" id="chat">
+    <div class="message">Hello! 👋</div>
+    <div class="message mine">Hi! How are you?</div>
+  </div>
+
+  <div class="input-area">
+    <input id="msg" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById("msg");
+      const text = input.value.trim();
+
+      if (text === "") return;
+
+      const message = document.createElement("div");
+      message.className = "message mine";
+      message.textContent = text;
+
+      document.getElementById("chat").appendChild(message);
+      input.value = "";
+    }
+  </script>
+  
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAJCkejiSop-zYHtf-bizFxwDxbhPtcYxI",
+    authDomain: "mychatapp-2876b.firebaseapp.com",
+    projectId: "mychatapp-2876b",
+    storageBucket: "mychatapp-2876b.firebasestorage.app",
+    messagingSenderId: "859851192412",
+    appId: "1:859851192412:web:44e50d268d1f96fe168e99",
+    measurementId: "G-M8T510K10L"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  console.log("Firebase connected!");
+</script>
+</body>
+</html>
