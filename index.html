@@ -5,32 +5,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Chat App</title>
+
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #f5f1fa;
     }
+
     header {
       background: #7046a5;
       color: white;
       padding: 20px;
       text-align: center;
     }
+
     .chat {
       padding: 15px;
+      padding-bottom: 90px;
     }
+
     .message {
       background: white;
       padding: 12px;
       border-radius: 12px;
       margin: 12px 0;
       max-width: 75%;
+      overflow-wrap: anywhere;
     }
+
     .mine {
       background: #d9fdd3;
       margin-left: auto;
     }
+
     .input-area {
       position: fixed;
       bottom: 0;
@@ -41,6 +49,7 @@
       background: white;
       gap: 8px;
     }
+
     input {
       flex: 1;
       min-width: 0;
@@ -48,6 +57,7 @@
       border: 1px solid #ccc;
       border-radius: 20px;
     }
+
     button {
       background: #7046a5;
       color: white;
@@ -57,58 +67,97 @@
     }
   </style>
 </head>
+
 <body>
+
   <header>
     <h2>My Chat App 💬</h2>
     <p>Welcome to my chat!</p>
   </header>
 
   <div class="chat" id="chat">
-    <div class="message">Hello! 👋</div>
-    <div class="message mine">Hi! How are you?</div>
+    <p>Loading messages...</p>
   </div>
 
   <div class="input-area">
     <input id="msg" placeholder="Type a message...">
-    <button onclick="sendMessage()">Send</button>
+    <button id="sendBtn">Send</button>
   </div>
 
-  <script>
-    function sendMessage() {
-      const input = document.getElementById("msg");
+  <script type="module">
+    import { initializeApp } from
+      "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAJCkejiSop-zYHtf-bizFxwDxbhPtcYxI",
+      authDomain: "mychatapp-2876b.firebaseapp.com",
+      projectId: "mychatapp-2876b",
+      storageBucket: "mychatapp-2876b.firebasestorage.app",
+      messagingSenderId: "859851192412",
+      appId: "1:859851192412:web:44e50d268d1f96fe168e99",
+      measurementId: "G-M8T510K10L"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("msg");
+    const sendBtn = document.getElementById("sendBtn");
+
+    async function sendMessage() {
       const text = input.value.trim();
 
       if (text === "") return;
 
-      const message = document.createElement("div");
-      message.className = "message mine";
-      message.textContent = text;
+      sendBtn.disabled = true;
 
-      document.getElementById("chat").appendChild(message);
-      input.value = "";
+      try {
+        await addDoc(collection(db, "messages"), {
+          Sender: "User1",
+          Text: text,
+          createdAt: serverTimestamp()
+        });
+
+        input.value = "";
+      } catch (error) {
+        alert("Message save nahi hua: " + error.message);
+      } finally {
+        sendBtn.disabled = false;
+      }
     }
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    onSnapshot(collection(db, "messages"), (snapshot) => {
+      chat.innerHTML = "";
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+
+        const message = document.createElement("div");
+        message.className =
+          data.Sender === "User1" ? "message mine" : "message";
+
+        message.textContent =
+          (data.Sender || "User") + ": " + (data.Text || "");
+
+        chat.appendChild(message);
+      });
+    }, (error) => {
+      chat.textContent = "Firebase error: " + error.message;
+    });
+
   </script>
-  
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAJCkejiSop-zYHtf-bizFxwDxbhPtcYxI",
-    authDomain: "mychatapp-2876b.firebaseapp.com",
-    projectId: "mychatapp-2876b",
-    storageBucket: "mychatapp-2876b.firebasestorage.app",
-    messagingSenderId: "859851192412",
-    appId: "1:859851192412:web:44e50d268d1f96fe168e99",
-    measurementId: "G-M8T510K10L"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  console.log("Firebase connected!");
-</script>
 </body>
 </html>
